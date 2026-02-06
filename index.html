@@ -8,7 +8,416 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* CSS Variables & Reset */
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338ca;
+            --bg-app: #F3F4F6;
+            --bg-panel: #FFFFFF;
+            --text-main: #111827;
+            --text-muted: #6B7280;
+            --border-color: #E5E7EB;
+            --danger: #ef4444; /* Piros a törléshez */
+            --danger-hover: #dc2626;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .app-header {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            z-index: 10;
+        }
+
+        .logo h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background-color: #F9FAFB;
+            border-color: #D1D5DB;
+        }
+
+        .btn-text {
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        .btn-text:hover {
+            color: var(--text-main);
+        }
+
+        /* Törlés gomb stílus */
+        .btn-danger-text {
+            color: var(--danger);
+            background: transparent;
+        }
+        .btn-danger-text:hover {
+            background-color: #fef2f2;
+            color: var(--danger-hover);
+        }
+
+        #backBtn {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            #backBtn {
+                display: inline-flex;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-box {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary);
+            outline: 2px solid #e0e7ff;
+        }
+
+        .concept-list {
+            flex: 1;
+            overflow-y: auto;
+            list-style: none;
+        }
+
+        .concept-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.15s;
+            font-weight: 500;
+        }
+
+        .concept-item:hover {
+            background-color: #F9FAFB;
+        }
+
+        .concept-item.active {
+            background-color: #EEF2FF;
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        /* Content Panel */
+        .content-panel {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background-color: #FAFAFA;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .empty-illustration {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Frayer Model Grid */
+        .frayer-view {
+            height: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .frayer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 1.5rem;
+            height: 100%;
+            min-height: 500px;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .frayer-cell {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Jobb oldali cellák szövegigazítása (Jellemzők, Ellenpéldák) */
+        .frayer-cell.characteristics,
+        .frayer-cell.non-examples {
+            text-align: right;
+        }
+
+        .frayer-cell h4 {
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            border-bottom: 2px solid #f3f4f6;
+            padding-bottom: 0.5rem;
+        }
+
+        .frayer-cell p {
+            flex: 1;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        /* Adjust layout for bottom cells (Examples, Non-examples) */
+        .frayer-cell.examples,
+        .frayer-cell.non-examples {
+            flex-direction: column-reverse;
+        }
+
+        .frayer-cell.examples h4,
+        .frayer-cell.non-examples h4 {
+            margin-bottom: 0;
+            border-bottom: none;
+            border-top: 2px solid #f3f4f6;
+            padding-top: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        /* Center Bubble */
+        .frayer-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+            font-weight: 700;
+            font-size: 1.5rem;
+            border: 4px solid white;
+        }
+
+        /* Form Styles */
+        .concept-form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .concept-form-container h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: 2px solid var(--primary);
+            border-color: transparent;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Form Actions: Módosított elrendezés a törlés gombhoz */
+        .form-actions {
+            display: flex;
+            justify-content: space-between; /* Törlés balra, többi jobbra */
+            align-items: center;
+            margin-top: 2rem;
+        }
+
+        .form-actions-right {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 200px;
+            }
+
+            .frayer-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            /* Mobilon visszaállítjuk a szövegigazítást, mert egymás alatt vannak */
+            .frayer-cell.characteristics,
+            .frayer-cell.non-examples {
+                text-align: left;
+            }
+
+            .frayer-center {
+                position: static;
+                transform: none;
+                width: 100%;
+                height: auto;
+                border-radius: var(--radius-md);
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -21,7 +430,7 @@
                         <path d="M12 19L5 12L12 5" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                 </button>
-                <h1>Faeyer könyvtár</h1>
+                <h1>Frayer könyvtár</h1>
             </div>
             <div class="actions">
                 <input type="file" id="csvInput" accept=".csv" hidden>
@@ -65,19 +474,16 @@
                     <input type="text" id="searchInput" placeholder="Keresés...">
                 </div>
                 <ul id="conceptList" class="concept-list">
-                    <!-- Concept items will be populated here -->
-                </ul>
+                    </ul>
             </aside>
 
             <section id="contentPanel" class="content-panel">
-                <!-- Views will be injected here: Empty State, Frayer View, or Form -->
                 <div id="emptyState" class="empty-state">
                     <div class="empty-illustration">📚</div>
                     <h3>Válasszon egy fogalmat a megtekintéshez</h3>
                     <p>Vagy hozzon létre egy újat a fenti gombbal.</p>
                 </div>
 
-                <!-- Template for Frayer Model View -->
                 <div id="frayerView" class="frayer-view" hidden>
                     <div class="view-header-actions"
                         style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
@@ -114,7 +520,6 @@
                     </div>
                 </div>
 
-                <!-- Template for Edit/Create Form -->
                 <div id="conceptForm" class="concept-form-container" hidden>
                     <h2>Új fogalom hozzáadása</h2>
                     <form id="form">
@@ -142,15 +547,494 @@
                             </div>
                         </div>
                         <div class="form-actions">
-                            <button type="button" id="cancelBtn" class="btn btn-text">Mégse</button>
-                            <button type="submit" class="btn btn-primary">Mentés</button>
+                            <button type="button" id="deleteBtn" class="btn btn-danger-text" style="display: none;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;">
+                                    <path d="M3 6h18"></path>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                                </svg>
+                                Törlés
+                            </button>
+                            
+                            <div class="form-actions-right">
+                                <button type="button" id="cancelBtn" class="btn btn-text">Mégse</button>
+                                <button type="submit" class="btn btn-primary">Mentés</button>
+                            </div>
                         </div>
                     </form>
                 </div>
             </section>
         </main>
     </div>
-    <script src="script.js"></script>
-</body>
 
+    <script>
+        /**
+         * Freyer Library - Main Script
+         */
+
+        // --- State Management ---
+        const AppState = {
+            concepts: [],
+            selectedConceptId: null, 
+            view: 'empty', // 'empty', 'detail', 'form'
+            isEditing: false, 
+            originalName: null, 
+            hasUnsavedChanges: false 
+        };
+
+        // --- DOM Elements ---
+        const Elements = {
+            csvInput: document.getElementById('csvInput'),
+            importBtn: document.getElementById('importBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            addBtn: document.getElementById('addBtn'),
+
+            searchInput: document.getElementById('searchInput'),
+            conceptList: document.getElementById('conceptList'),
+
+            contentPanel: document.getElementById('contentPanel'),
+            emptyState: document.getElementById('emptyState'),
+            frayerView: document.getElementById('frayerView'),
+
+            editBtn: document.getElementById('editBtn'),
+
+            conceptForm: document.getElementById('conceptForm'),
+
+            // View Fields
+            viewName: document.getElementById('viewName'),
+            viewDefinition: document.getElementById('viewDefinition'),
+            viewCharacteristics: document.getElementById('viewCharacteristics'),
+            viewExamples: document.getElementById('viewExamples'),
+            viewNonExamples: document.getElementById('viewNonExamples'),
+
+            // Form
+            form: document.getElementById('form'),
+            formTitle: document.querySelector('#conceptForm h2'), 
+            nameInput: document.getElementById('nameInput'),
+            defInput: document.getElementById('defInput'),
+            charInput: document.getElementById('charInput'),
+            exInput: document.getElementById('exInput'),
+            nonExInput: document.getElementById('nonExInput'),
+            cancelBtn: document.getElementById('cancelBtn'),
+            deleteBtn: document.getElementById('deleteBtn') // New element
+        };
+
+        // --- Initialization ---
+        function init() {
+            try {
+                setupEventListeners();
+                renderSidebar();
+                updateView();
+            } catch (err) {
+                console.error('Initialization error:', err);
+                alert('Hiba történt az alkalmazás indításakor: ' + err.message);
+            }
+        }
+
+        // --- Event Listeners ---
+        function setupEventListeners() {
+            Elements.backBtn = document.getElementById('backBtn');
+
+            if (Elements.addBtn) {
+                Elements.addBtn.addEventListener('click', startCreate);
+            }
+
+            if (Elements.editBtn) {
+                Elements.editBtn.addEventListener('click', startEdit);
+            }
+
+            if (Elements.backBtn) {
+                Elements.backBtn.addEventListener('click', () => {
+                    AppState.view = 'empty';
+                    AppState.selectedConceptId = null;
+                    AppState.isEditing = false;
+                    updateView();
+                    renderSidebar();
+                });
+            }
+
+            if (Elements.cancelBtn) {
+                Elements.cancelBtn.addEventListener('click', () => {
+                    if (AppState.originalName) {
+                        AppState.selectedConceptId = AppState.originalName;
+                        AppState.view = 'detail';
+                    } else {
+                        AppState.view = AppState.selectedConceptId ? 'detail' : 'empty';
+                    }
+                    AppState.isEditing = false;
+                    AppState.originalName = null;
+                    updateView();
+                });
+            }
+
+            // Törlés eseménykezelő
+            if (Elements.deleteBtn) {
+                Elements.deleteBtn.addEventListener('click', handleDelete);
+            }
+
+            if (Elements.form) {
+                Elements.form.addEventListener('submit', handleFormSubmit);
+            }
+
+            if (Elements.searchInput) {
+                Elements.searchInput.addEventListener('input', (e) => {
+                    renderSidebar(e.target.value);
+                });
+            }
+
+            window.addEventListener('beforeunload', (e) => {
+                if (AppState.hasUnsavedChanges) {
+                    e.preventDefault();
+                    e.returnValue = ''; 
+                }
+            });
+
+            if (Elements.importBtn && Elements.csvInput) {
+                Elements.importBtn.addEventListener('click', () => Elements.csvInput.click());
+                Elements.csvInput.addEventListener('change', handleCSVImport);
+            }
+            if (Elements.exportBtn) {
+                Elements.exportBtn.addEventListener('click', handleCSVExport);
+            }
+        }
+
+        // --- Logic functions ---
+
+        function startCreate() {
+            AppState.view = 'form';
+            AppState.isEditing = false;
+            AppState.originalName = null;
+
+            if (Elements.form) Elements.form.reset();
+            if (Elements.formTitle) Elements.formTitle.textContent = "Új fogalom hozzáadása";
+            
+            // Új létrehozásakor ne látszódjon a törlés gomb
+            if (Elements.deleteBtn) Elements.deleteBtn.style.display = 'none';
+
+            updateView();
+            renderSidebar(); 
+        }
+
+        function startEdit() {
+            const concept = AppState.concepts.find(c => c.name === AppState.selectedConceptId);
+            if (!concept) return;
+
+            AppState.view = 'form';
+            AppState.isEditing = true;
+            AppState.originalName = concept.name;
+
+            // Pre-fill form
+            Elements.nameInput.value = concept.name;
+            Elements.defInput.value = concept.definition;
+            Elements.charInput.value = concept.characteristics;
+            Elements.exInput.value = concept.examples;
+            Elements.nonExInput.value = concept.nonExamples;
+
+            if (Elements.formTitle) Elements.formTitle.textContent = "Fogalom szerkesztése";
+
+            // Szerkesztéskor látszódjon a törlés gomb
+            if (Elements.deleteBtn) Elements.deleteBtn.style.display = 'inline-flex';
+
+            updateView();
+        }
+
+        function handleDelete() {
+            if (!AppState.isEditing || !AppState.originalName) return;
+
+            if (confirm(`Biztosan törölni szeretné a(z) "${AppState.originalName}" fogalmat? Ez a művelet nem visszavonható.`)) {
+                // Törlés a tömbből
+                const index = AppState.concepts.findIndex(c => c.name === AppState.originalName);
+                if (index !== -1) {
+                    AppState.concepts.splice(index, 1);
+                }
+
+                // Állapot frissítése
+                AppState.hasUnsavedChanges = true;
+                AppState.selectedConceptId = null;
+                AppState.view = 'empty';
+                AppState.isEditing = false;
+                AppState.originalName = null;
+
+                // UI frissítése
+                sortConcepts();
+                renderSidebar();
+                updateView();
+            }
+        }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const newConcept = {
+                name: Elements.nameInput.value.trim(),
+                definition: Elements.defInput.value.trim(),
+                characteristics: Elements.charInput.value.trim(),
+                examples: Elements.exInput.value.trim(),
+                nonExamples: Elements.nonExInput.value.trim()
+            };
+
+            const existingIndex = AppState.concepts.findIndex(c => c.name.toLowerCase() === newConcept.name.toLowerCase());
+
+            if (existingIndex >= 0) {
+                const isSelf = AppState.isEditing && (AppState.concepts[existingIndex].name.toLowerCase() === AppState.originalName.toLowerCase());
+
+                if (!isSelf) {
+                    if (!confirm(`A(z) "${newConcept.name}" nevű fogalom már létezik. Felülírja?`)) {
+                        return;
+                    }
+                }
+            }
+
+            if (AppState.isEditing) {
+                const originalIndex = AppState.concepts.findIndex(c => c.name === AppState.originalName);
+                if (originalIndex !== -1) {
+                    AppState.concepts.splice(originalIndex, 1);
+                }
+
+                const collisionIndex = AppState.concepts.findIndex(c => c.name.toLowerCase() === newConcept.name.toLowerCase());
+                if (collisionIndex !== -1) {
+                    AppState.concepts.splice(collisionIndex, 1);
+                }
+
+                AppState.concepts.push(newConcept);
+
+            } else {
+                if (existingIndex >= 0) {
+                    AppState.concepts[existingIndex] = newConcept;
+                } else {
+                    AppState.concepts.push(newConcept);
+                }
+            }
+
+            sortConcepts();
+            AppState.hasUnsavedChanges = true;
+            AppState.selectedConceptId = newConcept.name;
+            AppState.view = 'detail';
+            AppState.isEditing = false;
+            AppState.originalName = null;
+
+            renderSidebar();
+            updateView();
+        }
+
+        function sortConcepts() {
+            AppState.concepts.sort((a, b) => a.name.localeCompare(b.name, 'hu'));
+        }
+
+        // --- Import/Export ---
+        function handleCSVImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const text = event.target.result;
+                parseCSV(text);
+            };
+            reader.readAsText(file, 'UTF-8');
+            Elements.csvInput.value = ''; // Reset
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split(/\r?\n/);
+            if (lines.length === 0) return;
+
+            const firstLine = lines[0];
+            const delimiter = firstLine.includes(';') ? ';' : ',';
+
+            let count = 0;
+            const startIndex = firstLine.toLowerCase().includes('név') ? 1 : 0;
+
+            for (let i = startIndex; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const parts = parseLine(line, delimiter);
+
+                if (parts.length >= 2) {
+                    const concept = {
+                        name: parts[0] ? parts[0].trim() : "Névtelen",
+                        definition: parts[1] ? parts[1].trim() : "",
+                        characteristics: parts[2] ? parts[2].trim() : "",
+                        examples: parts[3] ? parts[3].trim() : "",
+                        nonExamples: parts[4] ? parts[4].trim() : ""
+                    };
+
+                    const existing = AppState.concepts.find(c => c.name.toLowerCase() === concept.name.toLowerCase());
+                    if (!existing) {
+                        AppState.concepts.push(concept);
+                        count++;
+                    }
+                }
+            }
+
+            if (count > 0) {
+                sortConcepts();
+                AppState.hasUnsavedChanges = true;
+                renderSidebar();
+                alert(`${count} fogalom sikeresen importálva.`);
+            } else {
+                alert("Nem sikerült új fogalmakat beolvasni.");
+            }
+        }
+
+        function parseLine(text, delimiter) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (i + 1 < text.length && text[i + 1] === '"') {
+                            current += '"';
+                            i++;
+                        } else {
+                            inQuotes = false;
+                        }
+                    } else {
+                        current += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === delimiter) {
+                        result.push(current);
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+            }
+            result.push(current);
+            return result;
+        }
+
+        function handleCSVExport() {
+            if (AppState.concepts.length === 0) {
+                alert("Nincs mit exportálni.");
+                return;
+            }
+
+            let csvContent = "\uFEFF";
+            csvContent += "Név;Meghatározás;Jellemzők;Példák;Ellenpéldák\n";
+
+            AppState.concepts.forEach(c => {
+                const row = [
+                    c.name,
+                    c.definition,
+                    c.characteristics,
+                    c.examples,
+                    c.nonExamples
+                ].map(field => {
+                    if (field.includes(';') || field.includes('\n')) {
+                        return `"${field.replace(/"/g, '""')}"`;
+                    }
+                    return field;
+                }).join(';');
+
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", "freyer_konyvtar.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            AppState.hasUnsavedChanges = false;
+        }
+
+        // --- Rendering ---
+        function renderSidebar(filterText = '') {
+            Elements.conceptList.innerHTML = '';
+            const filter = filterText.toLowerCase();
+
+            AppState.concepts.forEach(concept => {
+                if (concept.name.toLowerCase().includes(filter)) {
+                    const li = document.createElement('li');
+                    li.className = 'concept-item';
+                    li.textContent = concept.name;
+
+                    if (concept.name === AppState.selectedConceptId) {
+                        li.classList.add('active');
+                    }
+
+                    li.addEventListener('click', () => {
+                        AppState.selectedConceptId = concept.name;
+                        AppState.view = 'detail';
+                        AppState.isEditing = false;
+                        updateView();
+                        renderSidebar(filterText); 
+                    });
+
+                    Elements.conceptList.appendChild(li);
+                }
+            });
+        }
+
+        function updateView() {
+            hideElement(Elements.emptyState);
+            hideElement(Elements.frayerView);
+            hideElement(Elements.conceptForm);
+
+            const mainContent = document.querySelector('.main-content');
+            let isDetailMode = false;
+
+            if (AppState.view === 'empty') {
+                showElement(Elements.emptyState);
+                isDetailMode = false;
+            } else if (AppState.view === 'form') {
+                showElement(Elements.conceptForm);
+                isDetailMode = true;
+            } else if (AppState.view === 'detail') {
+                const concept = AppState.concepts.find(c => c.name === AppState.selectedConceptId);
+                if (concept) {
+                    Elements.viewName.textContent = concept.name;
+                    Elements.viewDefinition.textContent = concept.definition;
+                    Elements.viewCharacteristics.textContent = concept.characteristics;
+                    Elements.viewExamples.textContent = concept.examples;
+                    Elements.viewNonExamples.textContent = concept.nonExamples;
+
+                    showElement(Elements.frayerView);
+                    isDetailMode = true;
+                } else {
+                    AppState.view = 'empty';
+                    showElement(Elements.emptyState);
+                    isDetailMode = false;
+                }
+            }
+
+            if (isDetailMode) {
+                mainContent.classList.add('mobile-detail-active');
+                if (Elements.backBtn) showElement(Elements.backBtn);
+            } else {
+                mainContent.classList.remove('mobile-detail-active');
+                if (Elements.backBtn) hideElement(Elements.backBtn);
+            }
+        }
+
+        function hideElement(el) {
+            if (el) {
+                el.hidden = true;
+                el.style.display = 'none';
+            }
+        }
+
+        function showElement(el) {
+            if (el) {
+                el.hidden = false;
+                el.style.display = ''; 
+            }
+        }
+
+        // Start
+        init();
+    </script>
+</body>
 </html>
